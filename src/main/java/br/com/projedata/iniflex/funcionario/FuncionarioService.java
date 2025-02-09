@@ -1,33 +1,36 @@
 package br.com.projedata.iniflex.funcionario;
 
 import br.com.projedata.iniflex.factory.FuncionarioFactory;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.Comparator;
 
+@Service
+@AllArgsConstructor
 public class FuncionarioService {
-    private final FuncionarioDAO funcionarioDAO;
-    private static final BigDecimal SALARIO_MINIMO = new BigDecimal("1212.00");
 
-    public FuncionarioService(FuncionarioDAO funcionarioDAO) {
-        this.funcionarioDAO = funcionarioDAO;
-    }
+    @Autowired
+    private FuncionarioRepository funcionarioRepository;
+
+    private static final BigDecimal SALARIO_MINIMO = new BigDecimal("1212.00");
 
     public void inicializarDados() {
         List<Funcionario> funcionarios = FuncionarioFactory.criarFuncionarios();
-        funcionarios.forEach(funcionarioDAO::inserir);
+        funcionarios.forEach(funcionarioRepository::inserir);
     }
 
     public List<Funcionario> listarFuncionarios() {
-        return funcionarioDAO.listarTodos();
+        return funcionarioRepository.listarTodos();
     }
 
     public void removerFuncionario(String nome) {
-        funcionarioDAO.remover(nome);
+        funcionarioRepository.remover(nome);
     }
 
     public void aplicarAumento(double percentual) {
@@ -35,30 +38,37 @@ public class FuncionarioService {
             throw new IllegalArgumentException("Percentual de aumento deve ser positivo");
         }
 
-        funcionarioDAO.atualizarSalarios(percentual);
+        funcionarioRepository.atualizarSalarios(percentual);
     }
 
     public Map<String, List<Funcionario>> agruparPorFuncao() {
-        return listarFuncionarios().stream()
-                .collect(Collectors.groupingBy(Funcionario::getFuncao));
+        return listarFuncionarios().stream().sorted(listarPorOrdemAlfabetica(Funcionario::getFuncao))
+                .collect(Collectors.groupingBy(
+                        Funcionario::getFuncao,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                        )
+                );
     }
 
     public List<Funcionario> buscarAniversariantes(int... meses) {
-        return funcionarioDAO.buscarPorMesDeAniversario(meses);
+        return funcionarioRepository.buscarPorMesDeAniversario(meses);
     }
 
     public String buscarFuncionarioMaisVelho() {
         var funcionarioMaisVelho = listarFuncionarios().stream()
                 .max(Comparator.comparing(Funcionario::getIdade));
-        return String.format("Nome: %s, Idade: %s",
-                funcionarioMaisVelho.get().getNome(),
-                funcionarioMaisVelho.get().getIdade()
-        );
+
+        return funcionarioMaisVelho.map(funcionario -> String.format("Nome: %s, Idade: %s anos",
+                funcionario.getNome(),
+                funcionario.getIdade()
+        )).orElse("Nenhum funcionário encontrado");
+
     }
 
-    public List<Funcionario> listarPorOrdemAlfabetica() {
+   public List<Funcionario> listaFuncionariosPorOrdemAlfabetica() {
         return listarFuncionarios().stream()
-                .sorted(Comparator.comparing(Funcionario::getNome))
+                .sorted(listarPorOrdemAlfabetica(Funcionario::getNome))
                 .collect(Collectors.toList());
     }
 
@@ -74,5 +84,11 @@ public class FuncionarioService {
                         Funcionario::getNome,
                         funcionario -> funcionario.getSalario().divide(SALARIO_MINIMO, 2, RoundingMode.HALF_UP)
                 ));
+    }
+
+    public Comparator<Funcionario> listarPorOrdemAlfabetica(Function<Funcionario, Comparable> campoParaOrdenar) {
+        return Comparator.comparing(
+                campoParaOrdenar,
+                Comparator.nullsLast(Comparator.naturalOrder()));
     }
 }

@@ -24,13 +24,6 @@ public class Funcionario extends Pessoa {
         this.funcao = funcao;
     }
 
-    public void setSalario(BigDecimal salario) {
-        if (salario.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Salário deve ser maior que zero");
-        }
-        this.salario = salario;
-    }
-
     public static String getSalarioFormatado(BigDecimal salario) {
         BigDecimal salarioArredondado = salario.setScale(2, RoundingMode.HALF_UP);
         DecimalFormat salarioFormatado = new DecimalFormat("#,##0.00");

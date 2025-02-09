@@ -21,7 +21,7 @@ public class DatabaseManager {
         return DriverManager.getConnection(URL_DATABASE);
     }
 
-    public static void criarTabelaFuncionarios() {
+    private static void criarTabelaFuncionarios() {
         String sql = """
             CREATE TABLE IF NOT EXISTS funcionarios (
                 id_funcionario INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,8 +40,8 @@ public class DatabaseManager {
         }
     }
 
-    public static void deletarDados() {
-        String sql = "DELETE FROM funcionarios";
+    private static void deletarTabelaFuncionarios() {
+        String sql = "DROP TABLE IF EXISTS funcionarios";
 
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement()) {
@@ -49,5 +49,10 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new DatabaseException("Erro ao deletar dados", e);
         }
+    }
+
+    public static void resetarTabelaFuncionarios() {
+        deletarTabelaFuncionarios();
+        criarTabelaFuncionarios();
     }
 }

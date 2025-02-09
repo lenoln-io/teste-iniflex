@@ -1,8 +1,6 @@
 package br.com.projedata.iniflex.pessoa;
 
-import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

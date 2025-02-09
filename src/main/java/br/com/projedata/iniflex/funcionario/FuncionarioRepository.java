@@ -1,6 +1,7 @@
 package br.com.projedata.iniflex.funcionario;
 
 import br.com.projedata.iniflex.database.DatabaseManager;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,7 +9,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FuncionarioDAO {
+@Repository
+public class FuncionarioRepository {
 
     public void inserir(Funcionario funcionario) {
         String sql = "INSERT INTO funcionarios (nome, dt_nasc, salario, funcao) VALUES (?, ?, ?, ?)";

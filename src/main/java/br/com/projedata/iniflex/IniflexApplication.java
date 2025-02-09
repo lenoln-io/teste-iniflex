@@ -2,7 +2,7 @@ package br.com.projedata.iniflex;
 
 import br.com.projedata.iniflex.database.DatabaseManager;
 import br.com.projedata.iniflex.funcionario.Funcionario;
-import br.com.projedata.iniflex.funcionario.FuncionarioDAO;
+import br.com.projedata.iniflex.funcionario.FuncionarioRepository;
 import br.com.projedata.iniflex.funcionario.FuncionarioService;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -13,12 +13,11 @@ public class IniflexApplication {
         try {
 
             //Inicialização das dependências
-            FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
-            FuncionarioService funcionarioService = new FuncionarioService(funcionarioDAO);
+            FuncionarioRepository funcionarioRepository = new FuncionarioRepository();
+            FuncionarioService funcionarioService = new FuncionarioService(funcionarioRepository);
 
-            //Inicialização do banco de dados e criação da tabela
-            DatabaseManager.criarTabelaFuncionarios();
-            DatabaseManager.deletarDados();
+            //Deleta a tabela funcionários caso exista e a cria novamente
+            DatabaseManager.resetarTabelaFuncionarios();
 
             //Inserção de dados dos funcionários usando a Factory
             System.out.println("Inicializando dados...");
@@ -51,7 +50,7 @@ public class IniflexApplication {
             System.out.println(funcionarioService.buscarFuncionarioMaisVelho());
 
             System.out.println("\n3.10 - Lista de funcionários por ordem alfabética");
-            funcionarioService.listarPorOrdemAlfabetica().forEach(System.out::println);
+            funcionarioService.listaFuncionariosPorOrdemAlfabetica().forEach(System.out::println);
 
             System.out.println("\n3.11 - Soma total dos salários dos funcionários");
             System.out.println("R$ " + Funcionario.getSalarioFormatado(funcionarioService.calcularTotalSalarios()));
