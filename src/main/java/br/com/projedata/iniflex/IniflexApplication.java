@@ -17,8 +17,8 @@ public class IniflexApplication {
             FuncionarioService funcionarioService = new FuncionarioService(funcionarioDAO);
 
             //Inicialização do banco de dados e criação da tabela
-            DatabaseManager.deletarDados();
             DatabaseManager.criarTabelaFuncionarios();
+            DatabaseManager.deletarDados();
 
             //Inserção de dados dos funcionários usando a Factory
             System.out.println("Inicializando dados...");
